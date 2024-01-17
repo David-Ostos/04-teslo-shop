@@ -25,17 +25,17 @@ export class ProductsController {
 
   @Get(':term')
   async findOne (@Param('term') term: string) {
-    return await this.productsService.findOne(term);
+    return await this.productsService.findOnePlain(term);
   }
 
   @Patch(':id')
-  update (
+  async update (
   // eslint-disable-next-line @typescript-eslint/indent
     @Param('id', new ParseUUIDPipe({ version: '4' }) ) id: string,
     @Body() updateProductDto: UpdateProductDto
   ) {
 
-    return this.productsService.update(id, updateProductDto);
+    return await this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
