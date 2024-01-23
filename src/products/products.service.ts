@@ -1,14 +1,19 @@
+import * as fs from 'fs';
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
+import { validate as isUUID } from 'uuid'
+
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 import { Product, ProductImage } from './entities';
 
-import { validate as isUUID } from 'uuid'
+import { join } from 'path';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class ProductsService {
@@ -22,18 +27,21 @@ export class ProductsService {
     @InjectRepository(ProductImage)
       private readonly productImagesRepository: Repository<ProductImage>,
 
-    private readonly dataSource: DataSource
+    private readonly dataSource: DataSource,
+
+    private readonly configService: ConfigService
 
   ){}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     
    try {
     
     const { images = [], ...productDetails} = createProductDto
     const product = this.productRepository.create({ 
       ...productDetails,
-      images: images.map( image => this.productImagesRepository.create( { url: image}))
+      images: images.map( image => this.productImagesRepository.create( { url: image})),
+      user
     });
 
     await this.productRepository.save(product);
@@ -41,11 +49,50 @@ export class ProductsService {
     return {...product, images};
 
    } catch (error) {
-
     this.handleDBException(error)
-
    }
 
+  }
+
+  async createWithImg(createProductDto: CreateProductDto, file: Express.Multer.File[] , user: User){
+    if ( !file ) throw new BadRequestException('File is empty');
+
+    if (!this.configService.get('HOST_API')) {
+      throw new InternalServerErrorException('environment "HOST_API" is undefined');
+
+    }
+    // const secureUrl = file.map( file => `${ this.configService.get('HOST_API')}/files/product/${file.filename}`); 
+    // console.log(secureUrl);
+
+    try {
+ 
+
+      const images = file.map( img => img.filename )
+
+      const product = this.productRepository.create({ 
+        ...createProductDto,
+        images: file.map( img => this.productImagesRepository.create( { url: img.filename})),
+        user
+      });
+  
+      console.log( images )
+
+      await this.productRepository.save(product);
+  
+      return { ...product, images, user };
+  
+     } catch (error) {
+
+      const images = file.map( img => img.filename )
+
+      images.forEach( img => {
+        fs.unlink( join(__dirname, '../../static/uploads', img ), (err) =>{
+          console.log(err)
+        });
+      } )
+      
+      this.handleDBException(error)
+      }
   }
 
   async findAll(paginationDto: PaginationDto) {
@@ -106,7 +153,7 @@ export class ProductsService {
   }
 
 
-  async update(id:string, updateProductDto: UpdateProductDto) {
+  async update(id:string, updateProductDto: UpdateProductDto, user: User) {
 
     const { images, ...toUpdate } = updateProductDto
 
@@ -132,7 +179,9 @@ export class ProductsService {
         // ???
       }
 
+      product.user = user
       await queryRunner.manager.save( product );
+
       await queryRunner.commitTransaction();
       await queryRunner.release()
 
@@ -157,6 +206,7 @@ export class ProductsService {
 
     return `The product with the ID: ${id} has been successfully removed`;
   }
+
 
   private handleDBException( error: any){
     if (error.code === '23505')

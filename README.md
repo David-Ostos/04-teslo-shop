@@ -28,6 +28,20 @@ npm run start:dev
 http://localhost:3000/api/seed
 ```
 
+
+
+# Documentacion de nest para utilizar passport con jwt
+
+https://docs.nestjs.com/recipes/passport
+
+## Librerias que instalar 
+
+``` bash
+ npm install --save @nestjs/passport passport @nestjs/jwt passport-jwt
+ npm install --save-dev @types/passport-jwt
+```
+
+
 ## Stay in touch
 
 - Author - [David Ostos](https://github.com/David-Ostos)

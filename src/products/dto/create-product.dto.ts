@@ -22,7 +22,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
-    decription?: string;
+    description?: string;
 
   @IsString()
   @IsOptional()
