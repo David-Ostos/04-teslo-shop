@@ -3,7 +3,7 @@ import {
   Param, Delete, ParseUUIDPipe, Query,
   UseInterceptors, UploadedFiles
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { FilesInterceptor } from '@nestjs/platform-express';
 
@@ -21,6 +21,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/interfaces';
 import { GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
+import { Product } from './entities';
 
 @ApiTags('Products')
 @Controller('products')
@@ -31,6 +32,9 @@ export class ProductsController {
   // para crear producto sin imagen
   @Post()
   @Auth( ValidRoles.admin )
+  @ApiResponse({ status: 201, description: 'Producr was create', type: Product })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 403, description: 'Forbidden. Token related.' })
   async create (@Body() createProductDto: CreateProductDto,
     @GetUser() user: User) {
     return await this.productsService.create(createProductDto, user);
