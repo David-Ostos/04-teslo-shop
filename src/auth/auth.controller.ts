@@ -2,6 +2,7 @@ import { Controller, Post, Body, Get, UseGuards, Headers } from '@nestjs/common'
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 
 import { GetUser, GetRawHeaders } from './decorators';
 import { User } from './entities/user.entity';
@@ -11,6 +12,8 @@ import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRoles } from './interfaces';
 import { Auth } from './decorators/auth.decorator';
 
+// eslint-disable-next-line @typescript-eslint/semi
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor (private readonly authService: AuthService) {}

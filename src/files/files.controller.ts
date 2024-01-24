@@ -1,6 +1,8 @@
 import { BadRequestException, Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
+
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 
@@ -8,6 +10,8 @@ import { Response } from 'express';
 import { FilesService } from './files.service';
 import { fileFilter, fileNamer } from './helpers/';
 
+// eslint-disable-next-line @typescript-eslint/semi
+@ApiTags('Files - Get and Upload')
 @Controller('files')
 export class FilesController {
   constructor (

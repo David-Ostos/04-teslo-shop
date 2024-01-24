@@ -21,7 +21,7 @@ export class SeedService {
 
   async runSeed () {
 
-    await this.deleteTables();
+    await this.deleteAll();
 
     const adminUser = await this.insertUsers();
 
@@ -29,7 +29,7 @@ export class SeedService {
 
     return 'SEED EXECUTED ';
   }
-
+  /*
   private async deleteTables () {
 
     await this.deleteAll();
@@ -39,7 +39,8 @@ export class SeedService {
       .delete()
       .where({})
       .execute();
-  }
+  } */
+
 
   async deleteAll () {
     await this.productService.deleteAllProduct();
@@ -58,6 +59,11 @@ export class SeedService {
       }
     });
 
+    const queryBuilder = this.userRepository.createQueryBuilder();
+    await queryBuilder
+      .delete()
+      .where({})
+      .execute();
   }
 
   private async insertUsers () {

@@ -3,6 +3,7 @@ import {
   Param, Delete, ParseUUIDPipe, Query,
   UseInterceptors, UploadedFiles
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { FilesInterceptor } from '@nestjs/platform-express';
 
@@ -21,6 +22,7 @@ import { ValidRoles } from '../auth/interfaces';
 import { GetUser } from '../auth/decorators';
 import { User } from '../auth/entities/user.entity';
 
+@ApiTags('Products')
 @Controller('products')
 // @Auth() // al poner el decorador Auth() aqui hace que todos los endpoint necesiten estar autenticados
 export class ProductsController {

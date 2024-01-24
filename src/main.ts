@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { AppModule } from './app.module';
 
 async function bootstrap () {
   const app = await NestFactory.create(AppModule);
@@ -14,14 +16,22 @@ async function bootstrap () {
     optionsSuccessStatus: 204,
     credentials: true
   });
+  app.setGlobalPrefix('api');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true
     })
   );
+  const config = new DocumentBuilder()
+    .setTitle('Teslo RESTFul API')
+    .setDescription('Teslo Shop Endpoint')
+    .setVersion('1.0')
+    .build();
 
-  app.setGlobalPrefix('api');
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   const port = process.env.PORT;
 

@@ -1,11 +1,13 @@
 import { Controller, Delete, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { SeedService } from './seed.service';
 
 import { Auth } from '../auth/decorators/auth.decorator';
 import { ValidRoles } from '../auth/interfaces';
 
-
+// eslint-disable-next-line @typescript-eslint/semi
+@ApiTags('Seeds')
 @Controller('seed')
 export class SeedController {
   constructor (private readonly seedService: SeedService) {}
